@@ -119,9 +119,16 @@ create_protected_agent = create_blue_agent
 
 
 async def test_agent(agent, runner):
-    """Quick smoke: one banking question."""
+    """Quick smoke: one banking question.
+
+    Best-effort only — a transient API hiccup here (Gemini free-tier
+    quota/overload) must not abort the real attack run that follows.
+    """
     print("\n--- Quick test ---")
-    text, _ = await chat_with_agent(
-        agent, runner, "What is the current savings interest rate at VinBank?"
-    )
-    print(f"Agent: {text[:400] if text else '(empty)'}")
+    try:
+        text, _ = await chat_with_agent(
+            agent, runner, "What is the current savings interest rate at VinBank?"
+        )
+        print(f"Agent: {text[:400] if text else '(empty)'}")
+    except Exception as e:
+        print(f"(quick test skipped — {type(e).__name__}: {e})")
